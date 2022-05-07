@@ -1,44 +1,29 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import SearchBar from "./SearchBar";
-import youtube from '../APIs/youtube';
 import VideoList from "./VideoList";
 import VideoDetail from "./VideoDetail";
+import useVideos from "../hooks/useVideos";
 
-class App extends React.Component{
-    state = { videos: [], selectedVideo: null };
+const App = () => {
+   const [slectedVideo, setSelectedVideo] = useState(null);
+   const [videos, search] = useVideos('dog');
+    
+    useEffect(() => {
+        setSelectedVideo(videos[0]);
+    }, [videos]);
 
-    componentDidMount(){
-        this.onSearchSubmit('dog');
-    }
-
-    onSearchSubmit = async term => {
-        const response = await youtube.get('/search', {params:{
-            q: term
-            }
-        });
-        this.setState({
-            videos: response.data.items,
-            selectedVideo: response.data.items[0]
-        });
-    };
-
-    onSelect = (video) => {
-        this.setState({selectedVideo: video});
-    };
-
-    render(){
         return(
             <div className="ui container">
-                <SearchBar onFormSubmit={this.onSearchSubmit} />
+                <SearchBar onFormSubmit={search} />
                 <div className="ui grid" >
                     <div className="ui row" >
                         <div className="eleven wide column" >
-                            <VideoDetail video = {this.state.selectedVideo} />
+                            <VideoDetail video = {slectedVideo} />
                         </div>
                         <div className="five wide column" >
                             <VideoList 
-                                onSelect = {this.onSelect} 
-                                videos = {this.state.videos} 
+                                onSelect = {v => setSelectedVideo(v) }
+                                videos = {videos} 
                             />
                         </div>
                     </div>
@@ -47,7 +32,6 @@ class App extends React.Component{
                 
             </div>
         );
-    }
 }
 
 export default App;
